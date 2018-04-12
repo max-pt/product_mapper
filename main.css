@@ -1,0 +1,69 @@
+
+
+.row {
+    width:100%;
+    height:100%;
+}
+.row div {
+    width:45%;
+    height:80%;
+    float:left;
+    margin-right: 50px;
+}
+
+.row img {
+   width: 100%;
+}
+
+.row label {
+  font-size:24px;
+}
+
+.row select {
+  background: transparent;
+  border: double;
+  font-size: 14px;
+  height: 100px;
+  padding: 5px;
+  width: 100%;
+}
+
+.wrapper div {
+    float:left;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.wrapper button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: left;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+
+.styled-select {
+   background: url(http://i62.tinypic.com/15xvbd5.png) no-repeat 96% 0;
+   height: 29px;
+   overflow: hidden;
+   width: 100%;
+}
+
+
+.styled-select.slate {
+   background: url(http://i62.tinypic.com/2e3ybe1.jpg) no-repeat right center;
+   height: 34px;
+   width: 240px;
+}
+
+.styled-select.slate select {
+   border: 1px solid #ccc;
+   font-size: 16px;
+   height: 34px;
+   width: 268px;
+}

@@ -1,0 +1,417 @@
+<!doctype html>
+
+<html>
+  <head>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.3.7/papaparse.js"></script>
+    <link rel="stylesheet" type="text/css" href="main.css" >
+  </head>
+
+  <body>
+
+    <h1>Product Categorization</h1>
+
+    <div class="row" style="display:none" id="displayWindow">
+      <div>
+        <a id="img_url" target="_blank"><img id="product_img"></a>
+      </div>
+
+      <div class="wrapper">
+        <a id="name" target="_blank"></a>
+        <br>
+        <span id="product_id"></span>
+        <br><br><hr><br>
+        Category:
+        <br>
+        <br>
+        <div class="styled-select slate">
+          <select id="primary_category">
+            <option disabled="disabled" selected="selected">Select primary category</option>
+            <option value="0">Products</option>
+            <option value="1">Women's</option>
+            <option value="2">Men's</option>
+            <option value="0">Health & Beauty</option>
+            <option value="3">Kids' & Baby</option>
+            <option value="0">Home</option>
+            <option value="0">Electronics</option>
+            <option value="0">Toys & Games</option>
+            <option value="0">Sports & Outdoors</option>
+            <option value="4">Books, Movies & Music</option>
+          </select>
+        </div>
+
+      <div class="wrapper" id="secondary" style="display:none">
+          <div class="styled-select slate" id="1" style="display:none">
+              <select id="select1">
+                <option disabled="disabled" selected="selected">Select secondary category</option>
+                <option value="No Children">Clothing</option>
+                <option value="No Children">Shoes</option>
+                <option value="No Children">Bags</option>
+                <option value="No Children">Jewelry</option>
+                <option value="No Children">Accessories</option>
+                <option value="No Children">Other</option>
+               </select>
+          </div>
+
+          <div class="styled-select slate" id="2" style="display:none">
+              <select id="select2">
+                <option disabled="disabled" selected="selected">Select secondary category</option>
+                <option value="No Children">Clothing</option>
+                <option value="No Children">Shoes</option>
+                <option value="No Children">Jewelry</option>
+                <option value="No Children">Accessories</option>
+                <option value="No Children">Other</option>
+               </select>
+          </div>
+
+          <div class="styled-select slate" id="3" style="display:none">
+              <select id="select3">
+                <option disabled="disabled" selected="selected">Select secondary category</option>
+                <option value="No Children">Boys'</option>
+                <option value="No Children">Girls'</option>
+                <option value="No Children">Toddlers & Infants</option>
+                <option value="No Children">Other</option>
+               </select>
+          </div>
+
+          <div class="styled-select slate" id="4" style="display:none">
+              <select id="select4">
+                <option disabled="disabled" selected="selected">Select secondary category</option>
+                <option value="No Children">Books</option>
+                <option value="No Children">Movies</option>
+                <option value="No Children">Music</option>
+                <option value="No Children">Other</option>
+               </select>
+          </div>
+
+      </div>
+
+      <div class="wrapper" id="save" style="display:none">
+        <button class="button" id="nextButton" onclick="storeProduct(); nextProduct();">Next Product</button>
+        <br><br>
+        <button class="button" id="saveButton" onclick="saveToDisk();">Save Progress</button>
+      </div>
+      <button class="button" id="finishButton" onclick="finishBatch();" style="display:none">Finish</button>
+
+    </div>
+
+  </div>
+
+  <div class="row" style="display:none" id="finishWindow">
+    <div>
+      You have finished mapping this set. Talk to <font size=1>Max/</font>Vicki/Jameelah for additional mappings.
+    </div>
+  </div>
+
+
+
+
+  <script src="https://d3js.org/d3.v3.min.js"></script>
+  <script>
+
+
+  var margin = {top: 50, right: 120, bottom: 20, left: 120},
+      width = 2300 - margin.right - margin.left,
+      height = 5700 - margin.top - margin.bottom;
+
+  var i = 0,
+      duration = 750,
+      root;
+
+  var tree = d3.layout.tree()
+      .size([height, width]);
+
+  var diagonal = d3.svg.diagonal()
+      .projection(function(d) { return [d.y, d.x]; });
+
+  var svg = d3.select("body").append("svg")
+      .attr("width", width + margin.right + margin.left)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  d3.json("taxonomy.json", function(error, flare) {
+    console.log("WE DID IT!");
+    if (error) throw error;
+
+    root = flare;
+    root.x0 = height / 2;
+    root.y0 = 0;
+
+    update(root);
+  });
+
+  d3.select(self.frameElement).style("height", "1000px");
+
+  function update(source) {
+    // Display version
+    taxonomy_version.innerHTML= source.version;
+    // Compute the new tree layout.
+    var nodes = tree.nodes(root).reverse(),
+        links = tree.links(nodes);
+
+    // Normalize for fixed-depth.
+    nodes.forEach(function(d) { d.y = d.depth * 350; });
+
+    // Update the nodes…
+    var node = svg.selectAll("g.node")
+        .data(nodes, function(d) { return d.id || (d.id = ++i); });
+
+    // Enter any new nodes at the parent's previous position.
+    var nodeEnter = node.enter().append("g")
+        .attr("class", "node")
+        .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+        .on("click", click);
+
+    nodeEnter.append("circle")
+        .attr("r", 1e-6)
+        .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+
+    nodeEnter.append("text")
+        .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
+        .attr("dy", ".35em")
+        .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+        .text(function(d) { return d.name; })
+        .style("fill-opacity", 1e-6);
+
+    // Transition nodes to their new position.
+    var nodeUpdate = node.transition()
+        .duration(duration)
+        .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+
+    nodeUpdate.select("circle")
+        .attr("r", 4.5)
+        .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+
+    nodeUpdate.select("text")
+        .style("fill-opacity", 1);
+
+    // Transition exiting nodes to the parent's new position.
+    var nodeExit = node.exit().transition()
+        .duration(duration)
+        .attr("transform", function(d) { return "translate(" + source.y + "," + source.x + ")"; })
+        .remove();
+
+    nodeExit.select("circle")
+        .attr("r", 1e-6);
+
+    nodeExit.select("text")
+        .style("fill-opacity", 1e-6);
+
+    // Update the links…
+    var link = svg.selectAll("path.link")
+        .data(links, function(d) { return d.target.id; });
+
+    // Enter any new links at the parent's previous position.
+    link.enter().insert("path", "g")
+        .attr("class", "link")
+        .attr("d", function(d) {
+          var o = {x: source.x0, y: source.y0};
+          return diagonal({source: o, target: o});
+        });
+
+    // Transition links to their new position.
+    link.transition()
+        .duration(duration)
+        .attr("d", diagonal);
+
+    // Transition exiting nodes to the parent's new position.
+    link.exit().transition()
+        .duration(duration)
+        .attr("d", function(d) {
+          var o = {x: source.x, y: source.y};
+          return diagonal({source: o, target: o});
+        })
+        .remove();
+
+    // Stash the old positions for transition.
+    nodes.forEach(function(d) {
+      d.x0 = d.x;
+      d.y0 = d.y;
+    });
+  }
+
+  // Toggle children on click.
+  function click(d) {
+    var hidden_path = document.getElementById("pathname");
+    hidden_path.setAttribute("value", d.path);
+    hidden_path.select();
+    document.execCommand('copy');
+    update(d);
+  }
+  </script>
+
+
+  <script>
+
+  // BEGIN FE JS
+
+    $(document).ready(function() {
+      $('#primary_category').on('change', function() {
+        if (this.value == "0") {
+          $('#secondary').hide();
+          $('#save').show();
+          category = $(this).find('option:selected').text();
+        } else {
+          $('#secondary').show();
+          $('#save').hide();
+          for (i=1; i < 5; i++) {
+            $(`#${i}`).hide();
+            $(`#select${i}`).prop('selectedIndex',0);
+          }
+          category = $(this).find('option:selected').text();
+          $(`#${this.value}`).show();
+        }
+      });
+      $('#secondary').on('change', function(e) {
+        category = category + '::' + $(`#${e.target.id} option:selected`).text();
+        $('#save').show();
+      });
+    })
+
+  // END FE JS
+  // -----------------------------------------------------------------------------
+  // BEGIN BE JS
+
+    let data;
+    let storedProducts = JSON.parse(localStorage.getItem("storedProducts")) || [];
+    let rowIndex = storedProducts.length || 0;
+
+    // 0. Begin app when file-picker status changes
+    $(document).ready(function() {
+      $.get({ url: 'https://s3.amazonaws.com/productmapper.precisetargetlabs.com/product_mapper_set_0.csv'}).then((data) => {
+        loadCSV(data);
+      })
+    });
+
+    // 1. Validate input CSV file
+    function validateCSV(event) {
+      // TODO: How to validate: Sniff CSV? Sheck input CSV filename?
+      const file = event.target.files[0];
+      loadCSV(file);
+    }
+
+    // 2. Parse valid CSV
+    function loadCSV(csv) {
+      Papa.parse(csv, {
+        header: false,
+        delimiter: ",",
+        skipEmptyLines: true,
+        complete: (results) => {
+          data = results.data;
+          $("#displayWindow").show();
+          nextProduct();
+        }
+      });
+    }
+
+    // 3. Retrieve the next row of data and use it to populate HTML elements
+    function nextProduct() {
+      // Early exit if there are the same or more saved products than total
+      if (rowIndex >= data.length) {
+        $("#displayWindow").hide();
+        $.post("https://hooks.slack.com/services/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",
+          JSON.stringify({text:`ERROR: Index (${rowIndex}) exceeds data length (${data.length})`}));
+      }
+
+      // On final product, replace `Next/Save` buttons with `Finish` button
+      if (rowIndex == data.length - 1) {
+        $('.button').hide();
+        $('#finishButton').show();
+      }
+
+      row = data[rowIndex];
+
+      // Reset dropdowns and populate HTML fields
+      $("#primary_category > option:eq(0)").prop('selected', true);
+      $('#secondary').hide();
+      $('#save').hide();
+      for (i=1; i < 5; i++) {
+        $(`#${i}`).hide();
+        $(`#select${i}`).prop('selectedIndex',0);
+      }
+      $("#product_id").html(row[0]);
+      $("#product_img").attr("src", row[2]);
+      $("#img_url").attr("href", row[3]);
+      $("#name").html(row[1]).attr("href", row[3]);
+
+      rowIndex++;
+    }
+
+    // 4. Save category selections to local storage
+    function storeProduct() {
+      storedProducts.push({
+        "product_id": $("#product_id").html(),
+        "category": category
+      });
+      localStorage.setItem("storedProducts", JSON.stringify(storedProducts));
+    }
+
+    // 5. Save local storage to disk as CSV
+    function saveToDisk(status) {
+      const filename = status || 'IN_PROGRESS';
+      let csv = convertArrayOfObjectsToCSV({
+          data: storedProducts
+      });
+
+      if (csv == null) return;
+      if (!csv.match(/^data:text\/csv/i)) {
+          csv = 'data:text/csv;charset=utf-8,' + csv;
+      }
+
+      // TODO: Hook to S3?
+      let link = document.createElement('a');
+      link.setAttribute('href', encodeURI(csv));
+      // TODO: Generate better filenames (Login? Input CSV name? Datestamp?)
+      link.setAttribute('download', `${filename}.csv`);
+      link.click();
+    }
+
+    // TODO: Refactor this function (100% lifted from internet)
+    function convertArrayOfObjectsToCSV(args) {
+      var result, ctr, keys, columnDelimiter, lineDelimiter, data;
+      data = args.data || null;
+      if (data == null || !data.length) {
+          return null;
+      }
+      columnDelimiter = args.columnDelimiter || ',';
+      lineDelimiter = args.lineDelimiter || '\n';
+      keys = Object.keys(data[0]);
+      result = '';
+      result += keys.join(columnDelimiter);
+      result += lineDelimiter;
+      data.forEach(function(item) {
+          ctr = 0;
+          keys.forEach(function(key) {
+              if (ctr > 0) result += columnDelimiter;
+              result += item[key];
+              ctr++;
+          });
+          result += lineDelimiter;
+      });
+      return result;
+    }
+
+    // 6. Save all progress to disk and send Slack alert
+    function finishBatch() {
+      storeProduct();
+      saveToDisk("COMPLETE");
+      localStorage.clear();
+      $("#displayWindow").hide();
+      $("#finishWindow").show();
+
+      // Send message to Slack #weak-learnin that a batch has been completed
+      $.post("https://hooks.slack.com/services/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",
+        JSON.stringify({text:'Batch Complete'}));
+    }
+
+
+    function showTree(root) {
+
+    }
+  // END BE JS
+
+  </script>
+
+  </body>
+</html>
