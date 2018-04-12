@@ -1,4 +1,39 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+#confirmation {
+    position: fixed;
+    width: 530px;
+    top: 0;
+    padding: 5px;
+    background-color: #fff;
+ }
+#confirmation input {
+  min-width: 300px;
+}
+.node {
+  cursor: pointer;
+}
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
 
+.node text {
+  font: 11px sans-serif;
+  letter-spacing: 1px;
+  font-weight: bold;
+}
+
+.link {
+  fill: none;
+  stroke: #b5c3cc;
+  stroke-width: 1.5px;
+}
+
+/*  */
 
 .row {
     width:100%;
