@@ -144,8 +144,6 @@
   d3.select(self.frameElement).style("height", "1000px");
 
   function update(source) {
-    // Display version
-    taxonomy_version.innerHTML= source.version;
     // Compute the new tree layout.
     var nodes = tree.nodes(root).reverse(),
         links = tree.links(nodes);
@@ -279,7 +277,7 @@
 
     // 0. Begin app when file-picker status changes
     $(document).ready(function() {
-      $.get({ url: 'https://s3.amazonaws.com/productmapper.precisetargetlabs.com/product_mapper_set_0.csv'}).then((data) => {
+      $.get({ url: 'test_csv.csv'}).then((data) => {
         loadCSV(data);
       })
     });
